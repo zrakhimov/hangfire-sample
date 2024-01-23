@@ -25,4 +25,10 @@ app.UseHangfireDashboard();
 app.UseRouting();
 app.UseAuthorization();
 app.MapRazorPages();
+
+// Sample Job
+
+RecurringJob.AddOrUpdate(() => Console.Write("HelLO!"),Cron.Minutely);
+
+
 app.Run();
