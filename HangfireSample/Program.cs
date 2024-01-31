@@ -28,7 +28,7 @@ app.UseAuthorization();
 // Add Hangfire Dashboard
 app.UseHangfireDashboard("/hangfire",new DashboardOptions()
 {
-    DashboardTitle = "My Personal Title",
+    DashboardTitle = "Title 2.0",
     AsyncAuthorization = new [] {new MyAuthorizationFilter()}
 });
 app.MapRazorPages();
