@@ -1,4 +1,6 @@
 using Hangfire;
+using Hangfire.Dashboard;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,11 +21,16 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 
-// Add Hangfire Dashboard
-app.UseHangfireDashboard();
+
 
 app.UseRouting();
 app.UseAuthorization();
+// Add Hangfire Dashboard
+app.UseHangfireDashboard("/hangfire",new DashboardOptions()
+{
+    DashboardTitle = "Custom Title",
+    AsyncAuthorization = new [] {new MyAuthorizationFilter()}
+});
 app.MapRazorPages();
 
 // Sample Job
@@ -32,3 +39,19 @@ RecurringJob.AddOrUpdate(() => Console.Write("HelLO!"),Cron.Minutely);
 
 
 app.Run();
+
+
+public class MyAuthorizationFilter : Hangfire.Dashboard.IDashboardAsyncAuthorizationFilter
+{
+    public async Task<bool> AuthorizeAsync(DashboardContext context)
+    {
+        var httpContext = context.GetHttpContext();
+        var userManager = httpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
+        
+        // Get the current user
+        var user = await userManager.GetUserAsync(httpContext.User);
+        
+        // Check if the user has "Admin" role
+        return await userManager.IsInRoleAsync(user, "Admin");
+    }
+}
